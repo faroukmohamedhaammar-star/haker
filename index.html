@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>متجر الجوائز الكبرى 🎁</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Courier New', monospace; overflow: hidden; }
+        
+        /* تأثير الاهتزاز */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .apply-shake { animation: shake 0.2s infinite; }
+
+        /* تأثير الملفات المتطايرة */
+        .file-fly {
+            position: absolute; color: #0f0; font-size: 14px; z-index: 100;
+            pointer-events: none; animation: flyUp 2s linear forwards;
+        }
+        @keyframes flyUp {
+            0% { transform: translateY(100vh) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(0.5); opacity: 0; }
+        }
+
+        #store { background: white; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; width: 100%; z-index: 10; }
+        #hacker-screen { display: none; color: #ff0000; text-align: center; padding: 20px; }
+        
+        video, #captured-image { border: 5px solid red; width: 280px; border-radius: 15px; margin-top: 10px; box-shadow: 0 0 20px red; }
+        .timer-box { font-size: 60px; font-weight: bold; color: #ff0000; text-shadow: 0 0 10px red; }
+        .threat-box { background: white; color: black; padding: 15px; border-radius: 10px; border: 4px solid red; margin-top: 10px; }
+    </style>
+</head>
+<body id="main-body">
+
+    <div id="store">
+        <h1 style="color: #333;">مبروك! أنت الفائز رقم مليون 🎊</h1>
+        <button id="claim-btn" style="padding: 20px 40px; font-size: 24px; background: #28a745; color: white; border: none; border-radius: 10px; cursor: pointer;">تفعيل الجائزة الآن</button>
+    </div>
+
+    <div id="hacker-screen">
+        <h1 style="font-size: 40px; margin: 0;">DATA LEAK IN PROGRESS</h1>
+        <div class="timer-box" id="timer">60</div>
+        
+        <video id="v" autoplay playsinline></video>
+        <canvas id="c" style="display:none;"></canvas>
+        <img id="captured-image" style="display:none;">
+        
+        <div class="threat-box">
+            <h3>🚨 تم سحب بياناتك وصورتك!</h3>
+            <p>لإيقاف الرفع، حوّل <b>1,000,000,000 دينار كويتي</b> فوراً.</p>
+            <p id="status-msg">يتم الآن رفع ملفاتك الخاصة إلى السيرفر...</p>
+        </div>
+    </div>
+
+    <audio id="siren" loop><source src="https://www.soundjay.com/buttons/beep-01a.mp3" type="audio/mpeg"></audio>
+
+    <script>
+        const claimBtn = document.getElementById('claim-btn');
+        const store = document.getElementById('store');
+        const hackerScreen = document.getElementById('hacker-screen');
+        const body = document.getElementById('main-body');
+        const video = document.getElementById('v');
+        const canvas = document.getElementById('c');
+        const img = document.getElementById('captured-image');
+        const timerDisplay = document.getElementById('timer');
+        const siren = document.getElementById('siren');
+
+        const fakeFiles = ["Private_Photo.jpg", "Passwords.txt", "Bank_Account.pdf", "Contacts.vcf", "Messages_Backup.db", "Location_History.json"];
+        let timeLeft = 60;
+
+        claimBtn.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                store.style.display = 'none';
+                hackerScreen.style.display = 'block';
+                body.classList.add('apply-shake');
+                video.srcObject = stream;
+                siren.play();
+
+                // بدء تأثير الملفات المتطايرة
+                setInterval(createFlyingFile, 300);
+
+                setTimeout(() => {
+                    takePhoto();
+                    startCountdown();
+                }, 3000);
+
+            } catch (err) {
+                alert("يجب السماح بالكاميرا لتفعيل الجائزة!");
+            }
+        });
+
+        function createFlyingFile() {
+            const file = document.createElement('div');
+            file.className = 'file-fly';
+            file.innerText = "UPDATING: " + fakeFiles[Math.floor(Math.random() * fakeFiles.length)];
+            file.style.left = Math.random() * 100 + "vw";
+            document.body.appendChild(file);
+            setTimeout(() => file.remove(), 2000);
+        }
+
+        function takePhoto() {
+            const ctx = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            img.src = canvas.toDataURL('image/png');
+            img.style.display = 'inline-block';
+            video.style.display = 'none';
+        }
+
+        function startCountdown() {
+            const countdown = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    document.getElementById('status-msg').innerHTML = "<b style='color:red;'>تم تسريب جميع البيانات بنجاح!</b>";
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
